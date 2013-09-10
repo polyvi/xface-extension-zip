@@ -4,8 +4,9 @@
         id="com.polyvi.xface.extension.zip"
         version="0.1.0">
     <name>Zip</name>
+    <author>PolyVi Inc.</author>
     <description>xFace Zip Plugin</description>
-    <license>Apache</license>
+    <license>Apache 2.0</license>
     <keywords>cordova,xface,zip</keywords>
 
 
@@ -35,4 +36,16 @@
         <source-file src="src/android/XZipExt.java" target-dir="src/com/polyvi/xface/extension" />
 
      </platform>
+
+    <!-- wp8 -->
+    <platform name="wp8">
+        <config-file target="config.xml" parent="/*">
+            <feature name="Zip">
+                <param name="wp-package" value="Zip"/>
+            </feature>
+        </config-file>
+
+        <source-file src="src/wp/XZipExt.cs" />
+        <source-file src="src/wp/ZipLibrary.dll" />
+    </platform>
 </plugin>
