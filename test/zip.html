@@ -37,30 +37,30 @@
         }
 
         function ZipOneFile(){
-            var filePath ="MyFile.txt";
-            var zipFilePath2 ="mypath/MyZip.zip";
+            var filePath ="/mnt/sdcard/Android/appworkspace/MyFile.txt";
+            var zipFilePath2 ="/mnt/sdcard/Android/appworkspace/mypath/MyZip.zip";
             document.getElementById('action').innerHTML = "Zip One File";
             xFace.Zip.zip(filePath, zipFilePath2, Success, Error); //将压缩后的文件MyZip.zip保存到当前目录的mypath文件夹下
         }
 
         function ZipOneFileWithPassword(){
-            var filePath ="MyFile.txt";
-            var zipFilePath ="MyZip.zip";
+            var filePath ="/mnt/sdcard/Android/appworkspace/MyFile.txt";
+            var zipFilePath ="/mnt/sdcard/Android/appworkspace/MyZip.zip";
             document.getElementById('action').innerHTML = "Zip One File With Password";
             xFace.Zip.zip(filePath, zipFilePath, Success, Error, {password:"test"}); //将压缩后的文件“MyZip.zip”保存当前目录
         }
 
         function UnzipFile(){
-            var dstFolderPath = "MyDstFolder";
-            var zipFilePath ="MyZip.zip";
+            var dstFolderPath = "/mnt/sdcard/Android/appworkspace/MyDstFolder";
+            var zipFilePath ="/mnt/sdcard/Android/appworkspace/MyZip.zip";
             document.getElementById('action').innerHTML = "Unzip File";
             xFace.Zip.unzip(zipFilePath, dstFolderPath, Success, Error, {password:"test"});
         }
 
         function ZipManyFilesOrFolders(){
-            var zipFilePath ="MyZip.zip";
+            var zipFilePath ="/mnt/sdcard/Android/appworkspace/MyZip.zip";
             document.getElementById('action').innerHTML = "Zip Many Files Or Folders";
-            xFace.Zip.zipFiles(["MyZip", "test.txt", "index.html"],zipFilePath, Success, Error, {password:"test"});
+            xFace.Zip.zipFiles(["/mnt/sdcard/Android/appworkspace/MyZip", "/mnt/sdcard/Android/appworkspace/test.txt", "/mnt/sdcard/Android/appworkspace/index.html"],zipFilePath, Success, Error, {password:"test"});
         }
     </script>
 

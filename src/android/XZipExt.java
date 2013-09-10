@@ -38,121 +38,109 @@ import org.json.JSONException;
 import android.util.Log;
 
 public class XZipExt extends CordovaPlugin {
+    private enum ErrorCode {
+        NONE,
+        // 文件不存在.
+        FILE_NOT_EXIST,
+        // 压缩文件出错.
+        COMPRESS_FILE_ERROR,
+        // 解压文件出错.
+        UNZIP_FILE_ERROR,
+        // 文件路径错误
+        FILE_PATH_ERROR,
+        // 文件类型错误,不支持的文件类型
+        FILE_TYPE_ERROR,
+    }
 
-    private final String OneAbsPath = "/mnt/sdcard/Android/appworkspace";
+    private static final String COMMAND_ZIP = "zip";
+    private static final String COMMAND_ZIP_FILES = "zipFiles";
+    private static final String COMMAND_UNZIP = "unzip";
     private final int BUFFER_LEN = 2048;
 
-	private enum ErrorCode {
-		NONE,
-		// 文件不存在.
-		FILE_NOT_EXIST,
-		// 压缩文件出错.
-		COMPRESS_FILE_ERROR,
-		// 解压文件出错.
-		UNZIP_FILE_ERROR,
-		// 文件路径错误
-		FILE_PATH_ERROR,
-		// 文件类型错误,不支持的文件类型
-		FILE_TYPE_ERROR,
-	}
+    @Override
+    public boolean execute(String action, JSONArray args,
+            CallbackContext callbackContext) throws JSONException {
+        ErrorCode code = ErrorCode.NONE;
+        if (COMMAND_ZIP.equals(action)) {
+            try {
+                boolean zipSuccess = zip(args.getString(0), args.getString(1));
+                if (!zipSuccess) {
+                    code = ErrorCode.FILE_PATH_ERROR;
+                } else {
+                    callbackContext.success();
+                }
+            } catch (FileNotFoundException e) {
+                code = ErrorCode.FILE_NOT_EXIST;
+            } catch (IOException e) {
+                code = ErrorCode.COMPRESS_FILE_ERROR;
+            } catch (IllegalArgumentException e) {
+                code = ErrorCode.COMPRESS_FILE_ERROR;
+            }
+        } else if (COMMAND_ZIP_FILES.equals(action)) {
+            try {
+                boolean zipSuccess = zipFiles(args.getJSONArray(0), args.getString(1));
+                if (!zipSuccess) {
+                    code = ErrorCode.FILE_PATH_ERROR;
+                } else {
+                    callbackContext.success();
+                }
+            } catch (FileNotFoundException e) {
+                code = ErrorCode.COMPRESS_FILE_ERROR;
+            } catch (IOException e) {
+                code = ErrorCode.COMPRESS_FILE_ERROR;
+            } catch (IllegalArgumentException e) {
+                code = ErrorCode.COMPRESS_FILE_ERROR;
+            }
+        } else if (COMMAND_UNZIP.equals(action)) {
+            try {
+                boolean zipSuccess = unzip(args.getString(0), args.getString(1));
+                if (!zipSuccess) {
+                    code = ErrorCode.FILE_PATH_ERROR;
+                } else {
+                    callbackContext.success();
+                }
+            } catch (FileNotFoundException e) {
+                code = ErrorCode.COMPRESS_FILE_ERROR;
+            } catch (IOException e) {
+                code = ErrorCode.COMPRESS_FILE_ERROR;
+            } catch (IllegalArgumentException e) {
+                code = ErrorCode.COMPRESS_FILE_ERROR;
+            }
+        }
+        callbackContext.error(code.toString());
+        return true;
+    }
 
-	private static final String COMMAND_ZIP = "zip";
-	private static final String COMMAND_ZIP_FILES = "zipFiles";
-	private static final String COMMAND_UNZIP = "unzip";
-
-	@Override
-	public boolean execute(String action, JSONArray args,
-			CallbackContext callbackContext) throws JSONException {
-		ErrorCode code = ErrorCode.NONE;
-		if (COMMAND_ZIP.equals(action)) {
-			try {
-				boolean zipSuccess = zip(OneAbsPath, args.getString(0), args.getString(1));
-				if (!zipSuccess) {
-					code = ErrorCode.FILE_PATH_ERROR;
-				} else {
-					callbackContext.success();
-				}
-			} catch (FileNotFoundException e) {
-				code = ErrorCode.FILE_NOT_EXIST;
-			} catch (IOException e) {
-				code = ErrorCode.COMPRESS_FILE_ERROR;
-			} catch (IllegalArgumentException e) {
-				code = ErrorCode.COMPRESS_FILE_ERROR;
-			}
-		} else if (COMMAND_ZIP_FILES.equals(action)) {
-			try {
-				boolean zipSuccess = zipFiles(OneAbsPath,	args.getJSONArray(0), args.getString(1));
-				if (!zipSuccess) {
-					code = ErrorCode.FILE_PATH_ERROR;
-				} else {
-					callbackContext.success();
-				}
-			} catch (FileNotFoundException e) {
-				code = ErrorCode.COMPRESS_FILE_ERROR;
-			} catch (IOException e) {
-				code = ErrorCode.COMPRESS_FILE_ERROR;
-			} catch (IllegalArgumentException e) {
-				code = ErrorCode.COMPRESS_FILE_ERROR;
-			}
-		} else if (COMMAND_UNZIP.equals(action)) {
-			try {
-				boolean zipSuccess = unzip(OneAbsPath, args.getString(0), args.getString(1));
-				if (!zipSuccess) {
-					code = ErrorCode.FILE_PATH_ERROR;
-				} else {
-					callbackContext.success();
-				}
-			} catch (FileNotFoundException e) {
-				code = ErrorCode.COMPRESS_FILE_ERROR;
-			} catch (IOException e) {
-				code = ErrorCode.COMPRESS_FILE_ERROR;
-			} catch (IllegalArgumentException e) {
-				code = ErrorCode.COMPRESS_FILE_ERROR;
-			}
-		}
-		callbackContext.error(code.toString());
-		return true;
-	}
-
-	/**
-	 * zip压缩方法(都限定在app的workspace下面)
-	 *
-	 * @param app
-	 *            app对象
-	 * @param srcEntry
-	 *            要压缩的源文件，可以是文件也可以是文件夹
-	 * @param destZipFile
-	 *            压缩成的目标文件，可以是test.zip也可以是a/b/c/test.zip
-	 * @return 返回压缩是否成功 true 成功 false 失败, 路径非法
-	 * */
-	private boolean zip(String appWorkspaceAbsPath, String srcEntry, String destZipFile)
-			throws NullPointerException, FileNotFoundException, IOException,
-			IllegalArgumentException {
-		String srcPath = appWorkspaceAbsPath+File.separator+srcEntry;
-		String desPath = appWorkspaceAbsPath+File.separator+destZipFile;
-		if (null == srcPath || null == desPath) {
-			return false;
-		}
-		zipDir(srcPath, desPath);
-		return true;
-	}
+    /**
+     * zip压缩
+     *
+     * @param srcEntry            要压缩的源文件或文件夹绝对路径
+     * @param destZipFile       压缩成的目标文件的绝对路径
+     * @return                          压缩是否成功: true: 成功, false: 失败或者路径非法
+     * @throws NullPointerException, FileNotFoundException, IOException,    IllegalArgumentException
+     * */
+    private boolean zip(String srcEntry, String destZipFile)
+            throws NullPointerException, FileNotFoundException, IOException,    IllegalArgumentException {
+        zipDir(srcEntry, destZipFile);
+        return true;
+    }
 
     private boolean isEmptyString(String str){
         if ((null == str)||(str.length() < 1)) {
-			return true;
-		}
+            return true;
+        }
         return false;
     }
 
     /**
-     * 对目录或文件进行zip压缩
+     * 对目录或文件进行压缩
      *
-     * @param srcFilePath     待压缩的目录
-     * @param zipFileName   要压缩成的zip文件名
+     * @param srcFilePath     待压缩的目录的绝对路径
+     * @param zipFileName   要压缩成的zip文件名的绝对路径
+     * @throws NullPointerException, FileNotFoundException, IOException, IllegalArgumentException
      */
-    public void zipDir(String srcFilePath, String zipFileName)
-            throws NullPointerException, FileNotFoundException, IOException,
-            IllegalArgumentException {
+    private void zipDir(String srcFilePath, String zipFileName)
+            throws NullPointerException, FileNotFoundException, IOException, IllegalArgumentException {
         if (isEmptyString(srcFilePath) || isEmptyString(zipFileName)) {
             throw new IllegalArgumentException();
         }
@@ -179,15 +167,15 @@ public class XZipExt extends CordovaPlugin {
     }
 
     /**
-     * zip或者压缩一个文件或者文件夹
+     * 压缩一个文件或者文件夹
      *
      * @param srcFilePath        带压缩的文件或文件夹
      * @param zos                     zip输出流 {@link ZipOutputStream}
      * @param entryPath          要写入到zip文件中的文件或文件夹的路径
      * @throws IOException
      */
-    private void compressDir(String srcFilePath, ZipOutputStream zos,
-            String entryPath) throws IOException {
+    private void compressDir(String srcFilePath, ZipOutputStream zos, String entryPath)
+            throws IOException {
         File zipDir = new File(srcFilePath);
         String[] dirList = zipDir.list();
         if (null == dirList || 0 == dirList.length || zipDir.isFile()) {
@@ -208,18 +196,13 @@ public class XZipExt extends CordovaPlugin {
     /**
      * 将文件写入zip文件中
      *
-     * @param srcFile
-     *            源文件
-     * @param zos
-     *            zip输出流 {@link ZipOutputStream}
-     * @param entryPath
-     *            要写入到zip文件中的文件或文件夹的路径
+     * @param zos                输出流
+     * @param entryPath     要写入到zip文件中的文件或文件夹的路径
+     * @throws IOException
      * */
-    private void writeToZip(File srcFile, ZipOutputStream zos,
-            String entryPath) throws IOException {
-
+    private void writeToZip(File srcFile, ZipOutputStream zos, String entryPath)
+            throws IOException {
         ZipEntry anEntry = null;
-
         if (srcFile.isDirectory()) {
             anEntry = new ZipEntry(entryPath);
             zos.putNextEntry(anEntry);
@@ -239,51 +222,45 @@ public class XZipExt extends CordovaPlugin {
         zos.closeEntry();
     }
 
-	/**
-	 * zip压缩多个可选文件方法(都限定在app的workspace下面)
-	 *
-	 * @param app
-	 *            app对象
-	 * @param srcEntries
-	 *            要压缩的源文件列表，可以是文件也可以是文件夹
-	 * @param destZipFile
-	 *            压缩成的目标文件，可以是test.zip也可以是a/b/c/test.zip
-	 * @return 返回压缩是否成功 true 成功 false 失败, 路径非法
-	 * @throws JSONException
-	 * */
-	private boolean zipFiles(String appWorkspaceAbsPath, JSONArray srcEntries, String destZipFile)
-			throws NullPointerException, FileNotFoundException, IOException, IllegalArgumentException,
-			JSONException {
+    /**
+     * 压缩多个可选文件方法
+     *
+     * @param srcEntries       要压缩的源文件列表，可以是文件也可以是文件夹
+     * @param destZipFile     压缩成的目标文件，可以是test.zip也可以是a/b/c/test.zip
+     * @return                        压缩是否成功，true：成功，false：失败或路径非法
+     * @throws NullPointerException, FileNotFoundException, IOException, IllegalArgumentException,JSONException
+     * */
+    private boolean zipFiles(JSONArray srcEntries, String destZipFile)
+            throws NullPointerException, FileNotFoundException, IOException, IllegalArgumentException,JSONException {
 
-		String[] paths = new String[srcEntries.length()];
-		for (int i = 0; i < srcEntries.length(); i++) {
-			paths[i] = appWorkspaceAbsPath+File.separator+srcEntries.getString(i);
-			if (null == paths[i]) {
-				return false;
-			}
-			File srcFile = new File(paths[i]);
-			if (!srcFile.exists()) {
-				throw new FileNotFoundException();
-			}
-		}
+        String[] paths = new String[srcEntries.length()];
+        for (int i = 0; i < srcEntries.length(); i++) {
+            paths[i] = srcEntries.getString(i);
+            if (null == paths[i]) {
+                return false;
+            }
+            File srcFile = new File(paths[i]);
+            if (!srcFile.exists()) {
+                throw new FileNotFoundException();
+            }
+        }
 
-		String desPath = appWorkspaceAbsPath+File.separator+destZipFile;
-		if (null == desPath) {
-			return false;
-		}
-		zipFiles(paths, desPath);
-		return true;
-	}
+        if (null == destZipFile) {
+            return false;
+        }
+        zipFiles(paths, destZipFile);
+        return true;
+    }
 
     /**
      * 对多个目录或文件进行zip压缩
      *
      * @param srcFilePaths      待压缩的文件列表
      * @param zipFileName     要压缩成的zip文件名
+     * @throws NullPointerException, FileNotFoundException, IOException, IllegalArgumentException
      */
-    public void zipFiles(String[] srcFilePaths, String zipFileName)
-            throws NullPointerException, FileNotFoundException, IOException,
-            IllegalArgumentException {
+    private void zipFiles(String[] srcFilePaths, String zipFileName)
+            throws NullPointerException, FileNotFoundException, IOException, IllegalArgumentException {
         if (isEmptyString(zipFileName)) {
             throw new IllegalArgumentException();
         }
@@ -321,38 +298,34 @@ public class XZipExt extends CordovaPlugin {
     }
 
 
-	/**
-	 * unzip解压缩方法(都限定在app的workspace下面)
-	 *
-	 * @param app
-	 *            app对象
-	 * @param zipFilePath
-	 *            要解压的源文件
-	 * @param destPath
-	 *            要解压的目标路径
-	 * @return 返回解压缩是否成功 true 成功 false 失败, 路径非法
-	 * */
-	private boolean unzip(String appWorkspaceAbsPath, String zipFilePath, String destPath)
-			throws FileNotFoundException, IOException {
-		String srcPath = appWorkspaceAbsPath+File.separator+zipFilePath;
-		String desPath = appWorkspaceAbsPath+File.separator+destPath;
-		if (null == srcPath || null == desPath) {
-			return false;
-		}
-		unzipFile(desPath, srcPath);
-		return true;
-	}
+    /**
+     * unzip解压缩方法(都限定在app的workspace下面)
+     *
+     * @param zipFilePath       要解压的源文件
+     * @param destPath          要解压的目标路径
+     * @return 解压缩是否成功，true：成功，false：失败或路径非法
+     * */
+    private boolean unzip(String zipFilePath, String destPath)
+            throws FileNotFoundException, IOException {
+        String srcPath = zipFilePath;
+        String desPath = destPath;
+        if (null == srcPath || null == desPath) {
+            return false;
+        }
+        unzipFile(desPath, srcPath);
+        return true;
+    }
 
     /**
      * 解压zip文件
      *
      * @param targetPath          解压的目标路径
      * @param zipFilePath         zip包路径
+     * @throws FileNotFoundException, IOException
      */
-    public void unzipFile(String targetPath, String zipFilePath)
+    private void unzipFile(String targetPath, String zipFilePath)
             throws FileNotFoundException, IOException {
         File zipFile = new File(zipFilePath);
-
         InputStream is = null;
         is = new FileInputStream(zipFile);
         if(!unzipFileFromStream(targetPath, is)) {
@@ -363,11 +336,9 @@ public class XZipExt extends CordovaPlugin {
     /**
      * 从输入流中读取zip文件数据进行解压
      *
-     * @param targetPath
-     *            解压的目标路径
-     * @param is
-     *            源zip包输入流
-     * @return 解压是否成功
+     * @param targetPath          解压的目标路径
+     * @param is                         源zip包输入流
+     * @return   解压是否成功
      * @throws IOException
      */
     private boolean unzipFileFromStream(String targetPath, InputStream is)

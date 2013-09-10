@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<plugin xmlns="http://www.phonegap.com/ns/plugins/1.0"
+<plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
         id="com.polyvi.xface.extension.zip"
-        version="0.1.0">
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        version="3.2.0">
+
     <name>Zip</name>
+    <author>PolyVi Inc.</author>
     <description>xFace Zip Plugin</description>
-    <license>Apache</license>
+    <license>Apache 2.0</license>
     <keywords>cordova,xface,zip</keywords>
 
 
@@ -20,6 +23,10 @@
     <js-module src="www/ZipOptions.js" name="ZipOptions">
         <clobbers target="ZipOptions" />
     </js-module>
+
+    <engines>
+      <engine name="cordova" version=">=2.5.0" />
+    </engines>
 
     <!-- android -->
     <platform name="android">
