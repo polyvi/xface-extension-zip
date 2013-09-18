@@ -42,4 +42,22 @@
         <source-file src="src/android/XZipExt.java" target-dir="src/com/polyvi/xface/extension" />
 
      </platform>
+
+    <!-- ios -->
+    <platform name="ios">
+	<config-file target="config.xml" parent="/*">
+	    <feature name="Zip">
+		<param name="ios-package" value="XZipArchiveExt" />
+	    </feature>
+	</config-file>
+
+	<header-file src="src/ios/XZipArchiveExt.h" />
+	<header-file src="src/ios/XZip.h" />
+	<source-file src="src/ios/XZipArchiveExt.m" />
+	<source-file src="src/ios/libzip.a" framework="true" />
+	<framework src="libz.dylib" />
+
+    </platform>
+
+
 </plugin>
