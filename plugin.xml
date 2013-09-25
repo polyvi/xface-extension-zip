@@ -59,5 +59,15 @@
 
     </platform>
 
+    <!-- wp8 -->
+    <platform name="wp8">
+        <config-file target="config.xml" parent="/*">
+            <feature name="Zip">
+                <param name="wp-package" value="Zip"/>
+            </feature>
+        </config-file>
 
+        <source-file src="src/wp/XZipExt.cs" />
+        <source-file src="src/wp/ZipLibrary.dll" />
+    </platform>
 </plugin>

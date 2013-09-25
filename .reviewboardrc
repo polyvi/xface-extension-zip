@@ -1,0 +1,5 @@
+REPOSITORY = 'git@git.polyvi.com:xface-extension-zip.git'
+REVIEWBOARD_URL = 'http://review.polyvi.com/reviews/'
+GUESS_FIELDS = 'true'
+OPEN_BROWSER = 'true'
+TARGET_GROUPS = 'xFaceApolloCCGroup'
