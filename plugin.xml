@@ -68,6 +68,5 @@
         </config-file>
 
         <source-file src="src/wp/XZipExt.cs" />
-        <source-file src="src/wp/ZipLibrary.dll" />
     </platform>
 </plugin>
