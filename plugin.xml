@@ -52,10 +52,8 @@
 	</config-file>
 
 	<header-file src="src/ios/XZipArchiveExt.h" />
-	<header-file src="src/ios/XZip.h" />
+	<header-file src="src/ios/XZipArchiveExt_Privates.h" />
 	<source-file src="src/ios/XZipArchiveExt.m" />
-	<source-file src="src/ios/libzip.a" framework="true" />
-	<framework src="libz.dylib" />
 
     </platform>
 
