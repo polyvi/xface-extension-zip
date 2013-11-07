@@ -93,7 +93,7 @@ describe("zip/unzip (xFace)", function () {
                    expect(ErrorCallBack).not.toHaveBeenCalled();
                    expect(SuccessCallBack).toHaveBeenCalled();
 
-                   expect(ErrorCallBack).not.toHaveBeenCalled();
+                   expect(FailFileReadCallBack).not.toHaveBeenCalled();
                    expect(SuccessFileReadCallBack).toHaveBeenCalled();
                 });
             });
@@ -168,7 +168,8 @@ describe("zip/unzip (xFace)", function () {
             });
 
             it("Zip.spec.8 Destination file Path error! Error callback should be called with errorcode = 4(FILE_PATH_ERROR)", function() {
-                var srcFile         =  "desPathWrong";
+
+                var srcFile         =  "SourceFile_1.html";//要测试本功能，必须保证srcFile存在，否则返回的是源文件不存在的错误
                 var desFile         =  "C:///\\\aaa///\\\aaa\\";
                 var ErrorCallBack   =  jasmine.createSpy().andCallFake(function(errorcode){
                     expect(errorcode).toBe(ZipError.FILE_PATH_ERROR);
@@ -247,6 +248,7 @@ describe("zip/unzip (xFace)", function () {
                     // cleanup
                     deleteEntry(desFile);
                 });
+
                 var FailFileReadCallBack = jasmine.createSpy().andCallFake(function(errorcode){});
 
                 var ErrorCallBack     =  jasmine.createSpy().andCallFake(function(errorcode){ });
@@ -425,33 +427,33 @@ describe("zip/unzip (xFace)", function () {
             });
 
             it("Zip.spec.19 compress a existed file and  a existed dir! Success callback should be called ", function() {
-                    var entries         =  ["SourceFile_1.html", "pre_set"];
-                    var desFile         =  "destination1.zip";
+                var entries         =  ["SourceFile_1.html", "pre_set"];
+                var desFile         =  "destination1.zip";
 
-                    var SuccessFileReadCallBack =  jasmine.createSpy().andCallFake(function (entry){
-                        expect(entry.name == desFile).toBe(true);
+                var SuccessFileReadCallBack =  jasmine.createSpy().andCallFake(function (entry){
+                    expect(entry.name == desFile).toBe(true);
 
-                        // cleanup
-                        deleteEntry(desFile);
-                    });
-                    var FailFileReadCallBack = jasmine.createSpy().andCallFake(function(errorcode){});
-
-                    var ErrorCallBack     =  jasmine.createSpy().andCallFake(function(errorcode){ });
-                    var  SuccessCallBack =  jasmine.createSpy().andCallFake(function(){
-                         root.getFile(desFile,{create: false, exclusive: false}, SuccessFileReadCallBack,FailFileReadCallBack);
-                    });
-                    runs(function(){  xFace.Zip.zipFiles(entries, desFile, SuccessCallBack, ErrorCallBack); });
-
-                    waitsFor(function() { return SuccessCallBack.wasCalled&&SuccessFileReadCallBack.wasCalled; }, "SuccessCallBack  never called", Tests.TEST_TIMEOUT);
-
-                    runs(function() {
-                        expect(ErrorCallBack).not.toHaveBeenCalled();
-                        expect(SuccessCallBack).toHaveBeenCalled();
-
-                        expect(FailFileReadCallBack).not.toHaveBeenCalled();
-                        expect(SuccessFileReadCallBack).toHaveBeenCalled();
-                    });
+                    // cleanup
+                    deleteEntry(desFile);
                 });
+                var FailFileReadCallBack = jasmine.createSpy().andCallFake(function(errorcode){});
+
+                var ErrorCallBack     =  jasmine.createSpy().andCallFake(function(errorcode){ });
+                var  SuccessCallBack =  jasmine.createSpy().andCallFake(function(){
+                    root.getFile(desFile,{create: false, exclusive: false}, SuccessFileReadCallBack,FailFileReadCallBack);
+                });
+                runs(function(){  xFace.Zip.zipFiles(entries, desFile, SuccessCallBack, ErrorCallBack); });
+
+                waitsFor(function() { return SuccessCallBack.wasCalled&&SuccessFileReadCallBack.wasCalled; }, "SuccessCallBack  never called", Tests.TEST_TIMEOUT);
+
+                runs(function() {
+                    expect(ErrorCallBack).not.toHaveBeenCalled();
+                    expect(SuccessCallBack).toHaveBeenCalled();
+
+                    expect(FailFileReadCallBack).not.toHaveBeenCalled();
+                    expect(SuccessFileReadCallBack).toHaveBeenCalled();
+                });
+            });
 
             it("Zip.spec.20 One of source files is not exist! Error callback should be called with errorcode = 1(FILE_NOT_EXIST)", function() {
                 var entries         =  ["SourceFile_1.html", "sourceFileIsNotExist.html"];
@@ -508,14 +510,14 @@ describe("zip/unzip (xFace)", function () {
             });
 
             it("Zip.spec.23 Path of destination file is invalid! Error callback should be called with errorcode = 4(FILE_PATH_ERROR)", function() {
-                var srcFile         =  "desPathWrong";
+                var srcFile         =  ["SourceFile_1.html", "SourceFile_2.html"];
                 var desFile         =  "../test";
                 var ErrorCallBack   =  jasmine.createSpy().andCallFake(function(errorcode){
                     expect(errorcode).toBe(ZipError.FILE_PATH_ERROR);
                 });
                 var  SuccessCallBack =  jasmine.createSpy().andCallFake(function(){ });
 
-                runs(function(){ xFace.Zip.zip(srcFile, desFile, SuccessCallBack, ErrorCallBack); });
+                runs(function(){ xFace.Zip.zipFiles(srcFile, desFile, SuccessCallBack, ErrorCallBack); });
 
                 waitsFor(function() { return ErrorCallBack.wasCalled; }, "ErrorCallBack  never called", Tests.TEST_TIMEOUT );
 
