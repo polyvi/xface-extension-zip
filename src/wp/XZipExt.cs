@@ -85,6 +85,11 @@ namespace WPCordovaClassLib.Cordova.Commands
             }
             string workspace = this.app.GetWorkSpace();
             string destZipFile = XUtils.ResolvePath(workspace, args[1]);
+            if (null == destZipFile)
+            {
+                DispatchCommandResult(new PluginResult(PluginResult.Status.ERROR, ErrorCode.FILE_PATH_ERROR));
+                return;
+            }
             string absdestZipFile = XUtils.BuildabsPathOnIsolatedStorage(destZipFile);
             string[] abspaths = new string[paths.Length];
             for (int i = 0; i < paths.Length; i++)
