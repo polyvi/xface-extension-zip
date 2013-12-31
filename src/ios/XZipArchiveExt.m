@@ -47,15 +47,24 @@
 
 @implementation XZipArchiveExt
 
-- (NSString*)parsePathByApp:(id<XApplication>)app withFileURL:(NSString*)fileURL;
+- (NSString*)parsePathByApp:(id<XApplication>)app withFile:(NSString*)path;
 {
-    NSString* workSpace = [app getWorkspace];
-    //都是相对workspace的相对路径，不能是 形如C:/a/bc 这种
-    if(NSNotFound !=[fileURL rangeOfString:@":"].location)
+    NSString *ret = Nil;
+    if ([self isAbsolute:path])
     {
-        return nil;
+        ret = [self getAbsolutePath:path];
     }
-    return [XUtils resolvePath:fileURL usingWorkspace:workSpace];
+    else
+    {
+        NSString* workSpace = [app getWorkspace];
+        //都是相对workspace的相对路径，不能是 形如C:/a/bc 这种
+        if(NSNotFound !=[path rangeOfString:@":"].location)
+        {
+            return nil;
+        }
+        ret = [XUtils resolvePath:path usingWorkspace:workSpace];
+    }
+    return ret;
 }
 
 - (void) zip:(CDVInvokedUrlCommand*)command
@@ -67,20 +76,18 @@
         NSString* filePath = nil;
         CDVPluginResult *result = nil;
         filePath = [command.arguments objectAtIndex:0];
-        filePath = [self parsePathByApp:app withFileURL:filePath];
+        filePath = [self parsePathByApp:app withFile:filePath];
         if (!filePath)
         {
-            //不在workspace下
             [self sendErrorMessage:FILE_PATH_ERROR withCallbackId:command.callbackId];
             return;
         }
 
         NSString* dstFilePath = nil;
         dstFilePath = [command.arguments objectAtIndex:1];
-        NSString* zipFilePath = [self parsePathByApp:app withFileURL:dstFilePath];
+        NSString* zipFilePath = [self parsePathByApp:app withFile:dstFilePath];
         if (!zipFilePath)
         {
-            //不在workspace下
             [self sendErrorMessage:FILE_PATH_ERROR withCallbackId:command.callbackId];
             return;
         }
@@ -144,7 +151,7 @@
         for(NSUInteger i = 0; i < [paths count]; i++)
         {
             filePath = [paths objectAtIndex:i];
-            filePath = [self parsePathByApp:app withFileURL:filePath];
+            filePath = [self parsePathByApp:app withFile:filePath];
             if (!filePath)
             {
                 //不在workspace下
@@ -163,10 +170,9 @@
         }
 
         //ckeck dstZipFile有效性
-        dstZipFile = [self parsePathByApp:app withFileURL:dstZipFile];
+        dstZipFile = [self parsePathByApp:app withFile:dstZipFile];
         if (!dstZipFile)
         {
-            //不在workspace下
             [self sendErrorMessage:FILE_PATH_ERROR withCallbackId:command.callbackId];
             return;
         }
@@ -195,7 +201,7 @@
         CDVPluginResult *result = nil;
         NSString* zipFilePath = nil;
         zipFilePath = [command.arguments objectAtIndex:0];
-        zipFilePath = [self parsePathByApp:app withFileURL:zipFilePath];
+        zipFilePath = [self parsePathByApp:app withFile:zipFilePath];
         //zip文件路径非法不在workspace下
         if (!zipFilePath)
         {
@@ -205,7 +211,7 @@
 
         NSString* dstFolderPath = nil;
         dstFolderPath = [command.arguments objectAtIndex:1];
-        dstFolderPath = [self parsePathByApp:app withFileURL:dstFolderPath];
+        dstFolderPath = [self parsePathByApp:app withFile:dstFolderPath];
         if (!dstFolderPath)
         {
             //不在workspace下
@@ -372,6 +378,35 @@
 {
     CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsInt:errorMessage];
     [self.commandDelegate sendPluginResult:result callbackId:callbackId];
+}
+
+//如果以"/"或file协议开头 处理为绝对路径
+-(BOOL) isAbsolute:(NSString*)path
+{
+    if ([path hasPrefix:@"/"])
+    {
+        return YES;
+    }
+    NSURL* newUri = [NSURL URLWithString:path];
+    return [newUri isFileURL];
+}
+
+-(NSString*) getAbsolutePath:(NSString*)path
+{
+    if ([path hasPrefix:@"/"])
+    {
+        return path;
+    }
+    else
+    {
+        NSURL* newUri = [NSURL URLWithString:path];
+        if ([newUri isFileURL])
+        {
+            return [newUri path];
+        }
+        //其他协议不支持
+        return Nil;
+    }
 }
 
 @end
