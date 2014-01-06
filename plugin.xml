@@ -3,12 +3,12 @@
 <plugin xmlns="http://apache.org/cordova/ns/plugins/1.0"
         id="com.polyvi.xface.extension.zip"
         xmlns:android="http://schemas.android.com/apk/res/android"
-        version="3.2.0">
+        version="1.0.0">
 
     <name>Zip</name>
     <author>PolyVi Inc.</author>
     <description>xFace Zip Plugin</description>
-    <license>Apache 2.0</license>
+    <license>GPLv3</license>
     <keywords>cordova,xface,zip</keywords>
 
 
