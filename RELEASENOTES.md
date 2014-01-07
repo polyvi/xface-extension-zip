@@ -21,3 +21,7 @@
 -->
 
 # Release Notes
+### 1.0.0 Tue Jan 07 2014 16:07:59 GMT+0800 (CST)
+ *  uodate plugin version&license
+ *  add zip support absolutePath,add test/zip/index.html
+ *  [android]Modify source codes package path
