@@ -37,7 +37,7 @@
     function getPictureAndZipToWorkSpace() {
         navigator.camera.getPicture(
             function (data) {
-                zipFile(data,"picture.zip");
+                zipPicture(data,"zip_picture.zip");
             },
             function(e) {
                 console.log("Error getting picture: " + e);
@@ -49,14 +49,24 @@
             });
     }
 
-    //压缩文件
-    function zipFile(srcFile, desFile) {
+    //压缩拍照获取的图片
+    function zipPicture(srcFile, desFile) {
         xFace.Zip.zip(srcFile, desFile,
             function () {
-                document.getElementById('zip_status').innerHTML = "zip file succes";
+                document.getElementById('zip_status').innerHTML = "Take Picture and zip picture to workspace";
             },
             function (e) {
-                document.getElementById('zip_status').innerHTML = "zip file errorcode: " + e;
+                document.getElementById('zip_status').innerHTML = "zip picture to workspace errorcode: " + e;
+            });
+    }
+    //压缩指定fileurl的文件
+    function zipFileUrl(srcFile, desFile) {
+        xFace.Zip.zip(srcFile, desFile,
+            function () {
+                document.getElementById('zip_status').innerHTML = "zip fileUrl file to workspace succes";
+            },
+            function (e) {
+                document.getElementById('zip_status').innerHTML = "zip fileUrl file to workspace errorcode: " + e;
             });
     }
 
@@ -64,7 +74,7 @@
     function compressFileWithFileUrl() {
         // 压缩当前的html文件file://.../index.html
         var fileUrl = window.location.href.replace(/\?.*/, '').replace(/ /g, '%20').replace("x-wmapp0:","file://");
-        zipFile(fileUrl,"file.zip");
+        zipFileUrl(fileUrl,"zip_file.zip");
     }
     /**
      * Function called when page has finished loading.
