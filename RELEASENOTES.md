@@ -25,3 +25,8 @@
  *  uodate plugin version&license
  *  add zip support absolutePath,add test/zip/index.html
  *  [android]Modify source codes package path
+### 1.0.1 Mon Jan 27 2014 15:55:59 GMT+0800 (CST)
+ *  batch modify .reviewboard
+ *  #2: 修改测试页面title错误
+ *  #1: 修改两个测试案例结果描述
+ *  Incremented plugin version on dev branch to 1.0.1-dev
