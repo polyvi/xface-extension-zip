@@ -30,7 +30,7 @@
 #import <Cordova/CDVPluginResult.h>
 #import <Cordova/NSArray+Comparisons.h>
 
-#import "CDVFile.h"
+#import "CDVFile+XFile.h"
 
 #define PASSWORD_KEY                @"password"
 
@@ -49,37 +49,6 @@
 
 @implementation XZipArchiveExt
 
-- (NSString *) getValidFilePath:(NSString *)filePath usingFilePlugin:(CDVFile *)filePlugin
-{
-    //有效路径形式有以下几种：
-    //1. 以'/'或'file://'开头的绝对路径
-    //2. cdvfile://localhost/<filesystemType>/<path to file>
-    //3. 相对appworkspace的相对路径
-    NSString *validFilePath = nil;
-    CDVFilesystemURL *fsURL = nil;
-    NSString *resolvedSourceFilePath = nil;
-    if ([XUtils isAbsolute:filePath])
-    {
-        filePath = [XUtils getAbsolutePath:filePath];
-        fsURL = [filePlugin fileSystemURLforLocalPath:filePath];
-    } else if ([filePath hasPrefix:kCDVFilesystemURLPrefix]){
-        fsURL = [CDVFilesystemURL fileSystemURLWithString:filePath];
-    } else if (NSNotFound !=[filePath rangeOfString:@":"].location) {
-        return NO; //不支持形如C:/a/bc的路径
-    } else{
-        resolvedSourceFilePath = [XUtils resolvePath:filePath usingWorkspace:[[self ownerApp] getWorkspace]];
-    }
-
-    if (fsURL) {
-        NSObject<CDVFileSystem> *fs = [filePlugin filesystemForURL:fsURL];
-        validFilePath = [fs filesystemPathForURL:fsURL];
-    } else {
-        validFilePath = resolvedSourceFilePath;
-    }
-
-    return validFilePath;
-}
-
 - (void) zip:(CDVInvokedUrlCommand*)command
 {
     [self.commandDelegate runInBackground:^{
@@ -89,7 +58,7 @@
         NSString* filePath = nil;
         CDVPluginResult *result = nil;
         filePath = [command.arguments objectAtIndex:0];
-        filePath = [self getValidFilePath:filePath usingFilePlugin:filePlugin];
+        filePath = [filePlugin resolveFilePath:filePath];
         if (!filePath)
         {
             [self sendErrorMessage:FILE_PATH_ERROR withCallbackId:command.callbackId];
@@ -98,7 +67,7 @@
 
         NSString* dstFilePath = nil;
         dstFilePath = [command.arguments objectAtIndex:1];
-        NSString* zipFilePath = [self getValidFilePath:dstFilePath usingFilePlugin:filePlugin];
+        NSString* zipFilePath = [filePlugin resolveFilePath:dstFilePath];
         if (!zipFilePath)
         {
             [self sendErrorMessage:FILE_PATH_ERROR withCallbackId:command.callbackId];
@@ -164,7 +133,7 @@
         for(NSUInteger i = 0; i < [paths count]; i++)
         {
             filePath = [paths objectAtIndex:i];
-            filePath = [self getValidFilePath:filePath usingFilePlugin:filePlugin];
+            filePath = [filePlugin resolveFilePath:filePath];
             if (!filePath)
             {
                 //不在workspace下
@@ -183,7 +152,7 @@
         }
 
         //ckeck dstZipFile有效性
-        dstZipFile = [self getValidFilePath:dstZipFile usingFilePlugin:filePlugin];
+        dstZipFile = [filePlugin resolveFilePath:dstZipFile];
         if (!dstZipFile)
         {
             [self sendErrorMessage:FILE_PATH_ERROR withCallbackId:command.callbackId];
@@ -214,7 +183,7 @@
         CDVPluginResult *result = nil;
         NSString* zipFilePath = nil;
         zipFilePath = [command.arguments objectAtIndex:0];
-        zipFilePath = [self getValidFilePath:zipFilePath usingFilePlugin:filePlugin];
+        zipFilePath = [filePlugin resolveFilePath:zipFilePath];
         //zip文件路径非法不在workspace下
         if (!zipFilePath)
         {
@@ -224,7 +193,7 @@
 
         NSString* dstFolderPath = nil;
         dstFolderPath = [command.arguments objectAtIndex:1];
-        dstFolderPath = [self getValidFilePath:dstFolderPath usingFilePlugin:filePlugin];
+        dstFolderPath = [filePlugin resolveFilePath:dstFolderPath];
         if (!dstFolderPath)
         {
             //不在workspace下
