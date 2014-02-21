@@ -11,6 +11,7 @@
     <license>GPLv3</license>
     <keywords>cordova,xface,zip</keywords>
 
+    <dependency id="org.apache.cordova.file" />
 
     <js-module src="www/Zip.js" name="Zip">
         <clobbers target="window.xFace.Zip" />

@@ -116,7 +116,7 @@ public class XZipExt extends CordovaPlugin {
      * @return 工作空间的绝对路径
      */
     private String getWorkspacePath(){
-        XAppWebView xAppWebView = (XAppWebView) webView;
+        XAppWebView xAppWebView = (XAppWebView) this.webView;
         return xAppWebView.getOwnerApp().getWorkSpace();
     }
 
@@ -144,6 +144,7 @@ public class XZipExt extends CordovaPlugin {
 
     /**
      * 判断字符串是否是空
+     *
      * @param str 待判断的字符串
      * @return 若字符串值是null或"",则返回true, 否则返回false
      */
@@ -153,6 +154,7 @@ public class XZipExt extends CordovaPlugin {
 
     /**
      * 创建压缩后文件的父目录，如果在JS端传入的是相对路径，而不仅仅是文件名称，则需要创建文件的父目录
+     *
      * @param zipFileAbsPath 文件的绝对路径
      * @return
      */
@@ -166,15 +168,17 @@ public class XZipExt extends CordovaPlugin {
     }
     /**
      * 检查文件路径是否有错，文件路径中可能包含非法字符
+     *
      * @param fileAbsPath
      * @return true: 文件路径中包含非法字符，false: 文件路径正确
      */
     private boolean isFileOrFolderAbsPathError(String fileAbsPath){
-        return (null == fileAbsPath)||!XFileUtils.isFileAncestorOf(getWorkspacePath(), fileAbsPath);
+        return !XFileUtils.isFilePathValid(fileAbsPath);
     }
 
     /**
      * 检查2个文件（不是文件夹）是否相同
+     *
      * @param srcFileAbsPath 原文件
      * @param targetFileAbsPath 待检查的文件
      * @return true: 相同，false: 不相同
@@ -184,49 +188,50 @@ public class XZipExt extends CordovaPlugin {
     }
 
     /**
-     * 根据文件（夹）的名字或者相对于应用程序工作空间的相对路径获得该文件（夹）的绝对路径
+     * 根据文件（夹）的URL或者相对于应用程序工作空间的相对路径获得该文件（夹）的绝对路径
      *
-     * @param filename 文件（夹）的名字或者相对于应用程序工作空间的相对路径
+     * @param filename 文件（夹）的URL或者相对于应用程序工作空间的相对路径
      * @return 文件（夹）的绝对路径
      */
     private String getAbsoluteFilePath(String filenameOrRelativePath){
-        return new XPathResolver(filenameOrRelativePath, getWorkspacePath(), null).resolve();
+        return new XPathResolver(filenameOrRelativePath, getWorkspacePath())
+            .resolve(this.webView.getResourceApi());
     }
 
     /**
      * zip压缩
      *
-     * @param srcEntry  要压缩的源文件或文件夹绝对路径
-     * @param destZipFile  压缩成的目标文件的绝对路径
+     * @param srcEntry  要压缩的源文件或文件夹URL
+     * @param destZipURL  压缩成的目标文件的URL
      * @return  压缩是否成功
      * @throws NullPointerException, FileNotFoundException, IOException, IllegalArgumentException
      * */
-    private boolean zip(String srcEntry, String destZipFile)
+    private boolean zip(String srcEntry, String destZipURL)
             throws NullPointerException, FileNotFoundException, IOException, IllegalArgumentException {
-        zipDir(srcEntry, destZipFile);
+        zipDir(srcEntry, destZipURL);
         return true;
     }
 
     /**
      * 对文件或文件夹进行压缩
      *
-     * @param srcFilePath   待压缩文件或者文件夹的相对路径
-     * @param zipFileName   压缩后的zip文件名的相对路径
+     * @param srcFileURL   待压缩文件或者文件夹的URL
+     * @param zipFileURL   压缩后的zip文件名的URL
      * @throws NullPointerException, FileNotFoundException,
      *         IOException, IllegalArgumentException
      */
-    private void zipDir(String srcFilePath, String zipFileName)
+    private void zipDir(String srcFileURL, String zipFileURL)
             throws NullPointerException, FileNotFoundException,
                    IOException, IllegalArgumentException {
 
         // 本方法是对单个文件进行压缩，需要确保原文件名和压缩后的文件名都不为空
-        if (isEmptyString(srcFilePath) || isEmptyString(zipFileName)) {
+        if (isEmptyString(srcFileURL) || isEmptyString(zipFileURL)) {
             throw new IllegalArgumentException();
         }
 
         // 获取待压缩、压缩后的文件绝对路径
-        String srcFileAbsPath = getAbsoluteFilePath(srcFilePath);
-        String dstFileAbsPath = getAbsoluteFilePath(zipFileName);
+        String srcFileAbsPath = getAbsoluteFilePath(srcFileURL);
+        String dstFileAbsPath = getAbsoluteFilePath(zipFileURL);
 
         // 检查文件名中是否包含非法字符
         if(isFileOrFolderAbsPathError(srcFileAbsPath) ||
@@ -267,7 +272,7 @@ public class XZipExt extends CordovaPlugin {
     /**
      * 压缩一个文件或者文件夹
      *
-     * @param srcFilePath  带压缩的文件或文件夹
+     * @param srcFilePath  待压缩的文件或文件夹的绝对路径
      * @param zos          zip输出流 {@link ZipOutputStream}
      * @param entryPath    要写入到zip文件中的文件或文件夹的路径
      * @throws IOException
@@ -423,21 +428,21 @@ public class XZipExt extends CordovaPlugin {
     /**
      * unzip解压缩方法(都限定在app的workspace下面)
      *
-     * @param zipFilePath       待解压文件（zip文件）的相对路径
-     * @param destPath          解压位置的相对路径，如果为空，则解压到Workspace下
+     * @param zipFileURL       待解压文件（zip文件）的相对路径或URL
+     * @param destFileURL      解压位置的相对路径或URL，如果为空，则解压到Workspace下
      * @return 解压缩是否成功
      * */
-    private boolean unzip(String zipFilePath, String destPath)
+    private boolean unzip(String zipFileURL, String destFileURL)
             throws FileNotFoundException, IOException {
 
         // 本方法是对单个文件进行解压，只需要确保原文件名不为空，解压目的路径可以为空
-        if (isEmptyString(zipFilePath)) {
+        if (isEmptyString(zipFileURL)) {
             throw new IllegalArgumentException();
         }
 
         // 获取绝对路径
-        String srcFileAbsPath = getAbsoluteFilePath(zipFilePath);
-        String dstFileAbsPath = getAbsoluteFilePath(destPath);
+        String srcFileAbsPath = getAbsoluteFilePath(zipFileURL);
+        String dstFileAbsPath = getAbsoluteFilePath(destFileURL);
 
         // 检查文件路径中是否包含非法字符
         if(isFileOrFolderAbsPathError(srcFileAbsPath) ||
