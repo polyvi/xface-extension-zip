@@ -30,6 +30,8 @@
 #import <Cordova/CDVPluginResult.h>
 #import <Cordova/NSArray+Comparisons.h>
 
+#import "CDVFile.h"
+
 #define PASSWORD_KEY                @"password"
 
 @interface  ZipArchive :NSObject
@@ -47,36 +49,47 @@
 
 @implementation XZipArchiveExt
 
-- (NSString*)parsePathByApp:(id<XApplication>)app withFile:(NSString*)path;
+- (NSString *) getValidFilePath:(NSString *)filePath usingFilePlugin:(CDVFile *)filePlugin
 {
-    NSString *ret = Nil;
-    if ([self isAbsolute:path])
+    //有效路径形式有以下几种：
+    //1. 以'/'或'file://'开头的绝对路径
+    //2. cdvfile://localhost/<filesystemType>/<path to file>
+    //3. 相对appworkspace的相对路径
+    NSString *validFilePath = nil;
+    CDVFilesystemURL *fsURL = nil;
+    NSString *resolvedSourceFilePath = nil;
+    if ([XUtils isAbsolute:filePath])
     {
-        ret = [self getAbsolutePath:path];
+        filePath = [XUtils getAbsolutePath:filePath];
+        fsURL = [filePlugin fileSystemURLforLocalPath:filePath];
+    } else if ([filePath hasPrefix:kCDVFilesystemURLPrefix]){
+        fsURL = [CDVFilesystemURL fileSystemURLWithString:filePath];
+    } else if (NSNotFound !=[filePath rangeOfString:@":"].location) {
+        return NO; //不支持形如C:/a/bc的路径
+    } else{
+        resolvedSourceFilePath = [XUtils resolvePath:filePath usingWorkspace:[[self ownerApp] getWorkspace]];
     }
-    else
-    {
-        NSString* workSpace = [app getWorkspace];
-        //都是相对workspace的相对路径，不能是 形如C:/a/bc 这种
-        if(NSNotFound !=[path rangeOfString:@":"].location)
-        {
-            return nil;
-        }
-        ret = [XUtils resolvePath:path usingWorkspace:workSpace];
+
+    if (fsURL) {
+        NSObject<CDVFileSystem> *fs = [filePlugin filesystemForURL:fsURL];
+        validFilePath = [fs filesystemPathForURL:fsURL];
+    } else {
+        validFilePath = resolvedSourceFilePath;
     }
-    return ret;
+
+    return validFilePath;
 }
 
 - (void) zip:(CDVInvokedUrlCommand*)command
 {
     [self.commandDelegate runInBackground:^{
-        id<XApplication> app = [self ownerApp];
         NSDictionary *jsOptions = [command.arguments objectAtIndex:2 withDefault:nil];
+        CDVFile *filePlugin = [self.commandDelegate getCommandInstance:@"File"];
 
         NSString* filePath = nil;
         CDVPluginResult *result = nil;
         filePath = [command.arguments objectAtIndex:0];
-        filePath = [self parsePathByApp:app withFile:filePath];
+        filePath = [self getValidFilePath:filePath usingFilePlugin:filePlugin];
         if (!filePath)
         {
             [self sendErrorMessage:FILE_PATH_ERROR withCallbackId:command.callbackId];
@@ -85,7 +98,7 @@
 
         NSString* dstFilePath = nil;
         dstFilePath = [command.arguments objectAtIndex:1];
-        NSString* zipFilePath = [self parsePathByApp:app withFile:dstFilePath];
+        NSString* zipFilePath = [self getValidFilePath:dstFilePath usingFilePlugin:filePlugin];
         if (!zipFilePath)
         {
             [self sendErrorMessage:FILE_PATH_ERROR withCallbackId:command.callbackId];
@@ -135,12 +148,12 @@
 - (void) zipFiles:(CDVInvokedUrlCommand*)command
 {
     [self.commandDelegate runInBackground:^{
-        id<XApplication> app = [self ownerApp];
         NSArray* paths = [command.arguments objectAtIndex:0];
         NSString* dstZipFile = [command.arguments objectAtIndex:1];
         NSDictionary *jsOptions = [command.arguments objectAtIndex:2 withDefault:nil];
 
         NSString* password = [jsOptions objectForKey:PASSWORD_KEY];
+        CDVFile *filePlugin = [self.commandDelegate getCommandInstance:@"File"];
 
         //check path有效性
         NSMutableArray* filePaths = [[NSMutableArray alloc] initWithCapacity:[paths count]];
@@ -151,7 +164,7 @@
         for(NSUInteger i = 0; i < [paths count]; i++)
         {
             filePath = [paths objectAtIndex:i];
-            filePath = [self parsePathByApp:app withFile:filePath];
+            filePath = [self getValidFilePath:filePath usingFilePlugin:filePlugin];
             if (!filePath)
             {
                 //不在workspace下
@@ -170,7 +183,7 @@
         }
 
         //ckeck dstZipFile有效性
-        dstZipFile = [self parsePathByApp:app withFile:dstZipFile];
+        dstZipFile = [self getValidFilePath:dstZipFile usingFilePlugin:filePlugin];
         if (!dstZipFile)
         {
             [self sendErrorMessage:FILE_PATH_ERROR withCallbackId:command.callbackId];
@@ -195,13 +208,13 @@
 - (void) unzip:(CDVInvokedUrlCommand*)command
 {
     [self.commandDelegate runInBackground:^{
-        id<XApplication> app = [self ownerApp];
         NSDictionary *jsOptions = [command.arguments objectAtIndex:2 withDefault:nil];
+        CDVFile *filePlugin = [self.commandDelegate getCommandInstance:@"File"];
 
         CDVPluginResult *result = nil;
         NSString* zipFilePath = nil;
         zipFilePath = [command.arguments objectAtIndex:0];
-        zipFilePath = [self parsePathByApp:app withFile:zipFilePath];
+        zipFilePath = [self getValidFilePath:zipFilePath usingFilePlugin:filePlugin];
         //zip文件路径非法不在workspace下
         if (!zipFilePath)
         {
@@ -211,7 +224,7 @@
 
         NSString* dstFolderPath = nil;
         dstFolderPath = [command.arguments objectAtIndex:1];
-        dstFolderPath = [self parsePathByApp:app withFile:dstFolderPath];
+        dstFolderPath = [self getValidFilePath:dstFolderPath usingFilePlugin:filePlugin];
         if (!dstFolderPath)
         {
             //不在workspace下
@@ -378,35 +391,6 @@
 {
     CDVPluginResult* result = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsInt:errorMessage];
     [self.commandDelegate sendPluginResult:result callbackId:callbackId];
-}
-
-//如果以"/"或file协议开头 处理为绝对路径
--(BOOL) isAbsolute:(NSString*)path
-{
-    if ([path hasPrefix:@"/"])
-    {
-        return YES;
-    }
-    NSURL* newUri = [NSURL URLWithString:path];
-    return [newUri isFileURL];
-}
-
--(NSString*) getAbsolutePath:(NSString*)path
-{
-    if ([path hasPrefix:@"/"])
-    {
-        return path;
-    }
-    else
-    {
-        NSURL* newUri = [NSURL URLWithString:path];
-        if ([newUri isFileURL])
-        {
-            return [newUri path];
-        }
-        //其他协议不支持
-        return Nil;
-    }
 }
 
 @end
