@@ -61,13 +61,13 @@ var Zip = function() {};
  *        文件路径支持的类型：<br/>
  *          1.相对路径，例如："myPath/test.txt"，则默认在app的workspace下<br/>
  *          2.全路径，例如："/myPath/..."<br/>
- *          3.file://协议的全路径，例如："file://myPath/..."<br/>
+ *          3.file://协议URL，例如："file:///myPath/..."<br/>
  *          4.通过{{#crossLink "File"}}{{/crossLink}}扩展获取的URL，参见{{#crossLink "Entry/toURL"}}{{/crossLink}}
  * @param {String} dstFilePath 指定目标文件路径(含 .zip 后缀)
  *        文件路径支持的类型：<br/>
  *          1.相对路径，例如："myPath/test.zip"，则默认在app的workspace下<br/>
  *          2.全路径，例如："/myPath/..."<br/>
- *          3.file://协议的全路径，例如："file://myPath/..."<br/>
+ *          3.file://协议URL，例如："file:///myPath/..."<br/>
  *          4.通过{{#crossLink "File"}}{{/crossLink}}扩展获取的URL，参见{{#crossLink "Entry/toURL"}}{{/crossLink}}
  * @param {Object} [options]     压缩文件时采用的配置选项（目前仅ios支持），属性包括：<br/>
         password：类型为String，用于指定压缩时的密码
@@ -101,13 +101,13 @@ Zip.prototype.zip = function(filePath, dstFilePath, successCallback, errorCallba
  *        文件路径支持的类型：<br/>
  *          1.相对路径，例如："myPath/test.zip"，则默认在app的workspace下<br/>
  *          2.全路径，例如："/myPath/..."<br/>
- *          3.file://协议的全路径，例如："file://myPath/..."<br/>
+ *          3.file://协议URL，例如："file:///myPath/..."<br/>
  *          4.通过{{#crossLink "File"}}{{/crossLink}}扩展获取的URL，参见{{#crossLink "Entry/toURL"}}{{/crossLink}}
  * @param {String} dstFolderPath 指定目标文件夹（如果为空串的话，就解压到当前app workspace目录；Android不支持路径为空）
  *        文件路径支持的类型：<br/>
  *          1.相对路径，例如："myPath/MyDstFolder"，则默认在app的workspace下<br/>
  *          2.全路径，例如："/myPath/..."<br/>
- *          3.file://协议的全路径，例如："file://myPath/..."<br/>
+ *          3.file://协议URL，例如："file:///myPath/..."<br/>
  *          4.通过{{#crossLink "File"}}{{/crossLink}}扩展获取的URL，参见{{#crossLink "Entry/toURL"}}{{/crossLink}}
  * @param {Object} [options]  解压文件时采用的配置选项（目前仅ios支持），属性包括：<br/>
         password：类型为String，用于指定解压时的密码
@@ -153,13 +153,13 @@ Zip.prototype.unzip = function(zipFilePath, dstFolderPath, successCallback, erro
  *        文件路径支持的类型：<br/>
  *          1.相对路径，例如："myPath/test.txt"，则默认在app的workspace下<br/>
  *          2.全路径，例如："/myPath/..."<br/>
- *          3.file://协议的全路径，例如："file://myPath/..."<br/>
+ *          3.file://协议URL，例如："file:///myPath/..."<br/>
  *          4.通过{{#crossLink "File"}}{{/crossLink}}扩展获取的URL，参见{{#crossLink "Entry/toURL"}}{{/crossLink}}
  * @param {String} dstFilePath  指定目标文件路径(含 .zip 后缀)
  *        文件路径支持的类型：<br/>
  *          1.相对路径，例如："myPath/test.zip"，则默认在app的workspace下<br/>
  *          2.全路径，例如："/myPath/..."<br/>
- *          3.file://协议的全路径，例如："file://myPath/..."<br/>
+ *          3.file://协议URL，例如："file:///myPath/..."<br/>
  *          4.通过{{#crossLink "File"}}{{/crossLink}}扩展获取的URL，参见{{#crossLink "Entry/toURL"}}{{/crossLink}}
  * @param {Object} [options]      压缩文件时采用的配置选项（目前仅ios支持），属性包括：<br/>
         password：类型为String，用于指定压缩时的密码
