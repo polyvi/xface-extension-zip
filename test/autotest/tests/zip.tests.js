@@ -51,7 +51,7 @@ describe("zip/unzip (xFace)", function () {
 
                 var ErrorCallBack   =  jasmine.createSpy().andCallFake(function(errorcode){});
                 var  SuccessCallBack =  jasmine.createSpy().andCallFake(function(){
-                    root.getFile(desFile,{create: false, exclusive: false}, SuccessFileReadCallBack,FailFileReadCallBack);
+                    workspace_root.getFile(desFile,{create: false, exclusive: false}, SuccessFileReadCallBack,FailFileReadCallBack);
                 });
 
                 runs(function(){  xFace.Zip.zip(srcFile, desFile, SuccessCallBack, ErrorCallBack); });
@@ -82,7 +82,7 @@ describe("zip/unzip (xFace)", function () {
 
                 var ErrorCallBack   =  jasmine.createSpy().andCallFake(function(errorcode){});
                 var SuccessCallBack =  jasmine.createSpy().andCallFake(function(){
-                    root.getFile(desFile,{create: false, exclusive: false}, SuccessFileReadCallBack,FailFileReadCallBack);
+                    workspace_root.getFile(desFile,{create: false, exclusive: false}, SuccessFileReadCallBack,FailFileReadCallBack);
                 });
 
                 runs(function(){ xFace.Zip.zip(srcFile, desFile, SuccessCallBack, ErrorCallBack); });
@@ -130,7 +130,7 @@ describe("zip/unzip (xFace)", function () {
 
                 var ErrorCallBack    =  jasmine.createSpy().andCallFake(function(errorcode){});
                 var SuccessCallBack =  jasmine.createSpy().andCallFake(function(){
-                     root.getFile(desFile,{create: false, exclusive: false}, SuccessFileReadCallBack,FailFileReadCallBack);
+                     workspace_root.getFile(desFile,{create: false, exclusive: false}, SuccessFileReadCallBack,FailFileReadCallBack);
                 });
 
 
@@ -222,7 +222,7 @@ describe("zip/unzip (xFace)", function () {
 
                 var ErrorCallBack     =  jasmine.createSpy().andCallFake(function(errorcode){ });
                 var SuccessCallBack =  jasmine.createSpy().andCallFake(function(){
-                     root.getDirectory(desFile,{create: false, exclusive: false}, SuccessFileReadCallBack,FailFileReadCallBack);
+                     workspace_root.getDirectory(desFile,{create: false, exclusive: false}, SuccessFileReadCallBack,FailFileReadCallBack);
                 });
 
                 runs(function(){ xFace.Zip.unzip(srcFile,desFile, SuccessCallBack,ErrorCallBack); });
@@ -253,7 +253,7 @@ describe("zip/unzip (xFace)", function () {
 
                 var ErrorCallBack     =  jasmine.createSpy().andCallFake(function(errorcode){ });
                 var SuccessCallBack =  jasmine.createSpy().andCallFake(function(){
-                     root.getFile(desFile,{create: false, exclusive: false}, SuccessFileReadCallBack,FailFileReadCallBack);
+                     workspace_root.getFile(desFile,{create: false, exclusive: false}, SuccessFileReadCallBack,FailFileReadCallBack);
                 });
 
                 runs(function(){ xFace.Zip.unzip(srcFile,"", SuccessCallBack,ErrorCallBack); });
@@ -382,7 +382,7 @@ describe("zip/unzip (xFace)", function () {
 
                 var ErrorCallBack     =  jasmine.createSpy().andCallFake(function(errorcode){ });
                 var  SuccessCallBack =  jasmine.createSpy().andCallFake(function(){
-                     root.getFile(desFile,{create: false, exclusive: false}, SuccessFileReadCallBack,FailFileReadCallBack);
+                     workspace_root.getFile(desFile,{create: false, exclusive: false}, SuccessFileReadCallBack,FailFileReadCallBack);
                 });
                 runs(function(){  xFace.Zip.zipFiles(entries, desFile, SuccessCallBack, ErrorCallBack); });
 
@@ -411,7 +411,7 @@ describe("zip/unzip (xFace)", function () {
 
                 var ErrorCallBack     =  jasmine.createSpy().andCallFake(function(errorcode){ });
                 var  SuccessCallBack =  jasmine.createSpy().andCallFake(function(){
-                     root.getFile(desFile,{create: false, exclusive: false}, SuccessFileReadCallBack,FailFileReadCallBack);
+                     workspace_root.getFile(desFile,{create: false, exclusive: false}, SuccessFileReadCallBack,FailFileReadCallBack);
                 });
                 runs(function(){  xFace.Zip.zipFiles(entries, desFile, SuccessCallBack, ErrorCallBack); });
 
@@ -440,7 +440,7 @@ describe("zip/unzip (xFace)", function () {
 
                 var ErrorCallBack     =  jasmine.createSpy().andCallFake(function(errorcode){ });
                 var  SuccessCallBack =  jasmine.createSpy().andCallFake(function(){
-                    root.getFile(desFile,{create: false, exclusive: false}, SuccessFileReadCallBack,FailFileReadCallBack);
+                    workspace_root.getFile(desFile,{create: false, exclusive: false}, SuccessFileReadCallBack,FailFileReadCallBack);
                 });
                 runs(function(){  xFace.Zip.zipFiles(entries, desFile, SuccessCallBack, ErrorCallBack); });
 

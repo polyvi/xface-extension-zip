@@ -46,38 +46,40 @@
   <script type="text/javascript" src="../tests/zip.tests.js"></script>
 
   <script type="text/javascript">
+      var persistent_root, workspace_root;
+
       document.addEventListener('deviceready', function () {
           // one-time retrieval of the root file system entry
           var onError = function(e) {
-              console.log('[ERROR] Problem setting up root filesystem for test running! Error to follow.');
+              console.log('[ERROR] Problem setting up filesystem for test running! Error to follow.');
               console.log(JSON.stringify(e));
           };
 
           window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,
-                  function(fileSystem) {
-                      console.log('File API test Init: Setting PERSISTENT FS.');
-                      root = fileSystem.root; // set in file.tests.js
-                      persistent_root = root;
+              function(fileSystem) {
+                  console.log('File API test Init: Setting PERSISTENT FS.');
+                  persistent_root = fileSystem.root;
 
-                      // Once root is set up, fire off tests
-                      var jasmineEnv = jasmine.getEnv();
-                      jasmineEnv.updateInterval = 1000;
+                  window.requestFileSystem(LocalFileSystem.APPWORKSPACE, 0,
+                      function(fileSystem) {
+                          console.log('File API test Init: Setting APPWORKSPACE FS.');
+                          workspace_root = fileSystem.root;
 
-                      var htmlReporter = new jasmine.HtmlReporter();
+                          // Once root is set up, fire off tests
+                          var jasmineEnv = jasmine.getEnv();
+                          jasmineEnv.updateInterval = 1000;
 
-                      jasmineEnv.addReporter(htmlReporter);
+                          var htmlReporter = new jasmine.HtmlReporter();
 
-                      jasmineEnv.specFilter = function(spec) {
-                          return htmlReporter.specFilter(spec);
-                      };
+                          jasmineEnv.addReporter(htmlReporter);
 
-                      jasmineEnv.execute();
-                  }, onError);
-          window.requestFileSystem(LocalFileSystem.TEMPORARY, 0,
-                  function(fileSystem) {
-                      console.log('File API test Init: Setting TEMPORARY FS.');
-                      temp_root = fileSystem.root; // set in file.tests.js
-                  }, onError);
+                          jasmineEnv.specFilter = function(spec) {
+                            return htmlReporter.specFilter(spec);
+                          };
+
+                          jasmineEnv.execute();
+                      }, onError);
+              }, onError);
       }, false);
   </script>
 </head>
