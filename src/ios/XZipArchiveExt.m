@@ -136,7 +136,6 @@
             filePath = [filePlugin resolveFilePath:filePath];
             if (!filePath)
             {
-                //不在workspace下
                 [self sendErrorMessage:FILE_PATH_ERROR withCallbackId:command.callbackId];
                 return;
             }
@@ -184,7 +183,6 @@
         NSString* zipFilePath = nil;
         zipFilePath = [command.arguments objectAtIndex:0];
         zipFilePath = [filePlugin resolveFilePath:zipFilePath];
-        //zip文件路径非法不在workspace下
         if (!zipFilePath)
         {
             [self sendErrorMessage:FILE_PATH_ERROR withCallbackId:command.callbackId];
@@ -196,7 +194,6 @@
         dstFolderPath = [filePlugin resolveFilePath:dstFolderPath];
         if (!dstFolderPath)
         {
-            //不在workspace下
             [self sendErrorMessage:FILE_PATH_ERROR withCallbackId:command.callbackId];
             return;
         }
