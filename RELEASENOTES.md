@@ -30,3 +30,14 @@
  *  #2: 修改测试页面title错误
  *  #1: 修改两个测试案例结果描述
  *  Incremented plugin version on dev branch to 1.0.1-dev
+
+## 1.0.2 (Fri Feb 28 2014)
+
+
+ *  Add auto tests for resolving file path.
+ *  Fix the incorrect api description.
+ *  Update auto tests to make sure the original test cases can pass.
+ *  [android]Zip plugin is compatible with url 'cdvfile://localhost/<filesystemType>/<path to file>'
+ *  [iOS]Invoke file plugin resolveFilePath: method to process file path
+ *  [iOS] Improve the processing logic of file path and support more path forms.
+ *  Incremented plugin version on dev branch to 1.0.2-dev
