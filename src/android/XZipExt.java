@@ -273,6 +273,7 @@ public class XZipExt extends CordovaPlugin {
      */
     private void compressAssetsFile(Uri srcFileUri, ZipOutputStream zos,
             String entry) throws IOException {
+        srcFileUri = handleUri(srcFileUri);
         String srcPath = srcFileUri.getPath().substring(
                 XConstant.ANDROID_ASSET.length());
         if (XAssetsFileUtils.isFile(mContext, srcPath)) {
@@ -292,6 +293,20 @@ public class XZipExt extends CordovaPlugin {
                 }
             }
         }
+    }
+
+    /**
+     * 处理uri路径，如果结尾以'/'结束，则删除'/'
+     *
+     * @param srcFileUri
+     * @return
+     */
+    private Uri handleUri(Uri srcFileUri) {
+        String srcFile = srcFileUri.toString();
+        if (srcFile.endsWith(File.separator)) {
+            srcFileUri = Uri.parse(srcFile.substring(0, srcFile.length()-1));
+        }
+        return srcFileUri;
     }
 
     /**
