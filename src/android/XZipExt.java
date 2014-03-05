@@ -272,7 +272,7 @@ public class XZipExt extends CordovaPlugin {
      * @throws IOException
      */
     private void compressAssetsFile(Uri srcFileUri, ZipOutputStream zos,
-            String entry) throws IOException {
+            String entry) throws IOException, FileNotFoundException {
         srcFileUri = handleUri(srcFileUri);
         String srcPath = srcFileUri.getPath().substring(
                 XConstant.ANDROID_ASSET.length());
@@ -280,6 +280,11 @@ public class XZipExt extends CordovaPlugin {
             zipFile(srcFileUri, zos, entry + srcFileUri.getLastPathSegment());
         } else {
             String childrens[] = mContext.getAssets().list(srcPath);
+            if (null == childrens || 0 == childrens.length) {
+                XLog.e(CLASS_NAME,
+                        "Method compressAssetsFile: Source file path does not exist!");
+                throw new FileNotFoundException();
+            }
             Uri srcRootUri = srcFileUri;
             for (int index = 0; index < childrens.length; index++) {
                 srcFileUri = Uri.parse(srcRootUri.toString() + File.separator
@@ -321,6 +326,11 @@ public class XZipExt extends CordovaPlugin {
     private void compressNormalFile(Uri srcFileUri, ZipOutputStream zos,
             String entry) throws IOException, FileNotFoundException {
         File srcFile = new File(srcFileUri.getPath());
+        if (null == srcFile || !srcFile.exists()) {
+            XLog.e(CLASS_NAME,
+                    "Method compressNormalFile:Source file path does not exist!");
+            throw new FileNotFoundException();
+        }
         String[] dirList = srcFile.list();
         if ((null == dirList || 1 > dirList.length) && srcFile.isFile()) {
             // 处理单文件
