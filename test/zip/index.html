@@ -35,13 +35,14 @@
 
      //使用设备上的摄像头拍照，并将照片压缩当前工作空间
     function getPictureAndZipToWorkSpace() {
+        document.getElementById('zip_status').innerHTML = "getPictureAndZipToWorkSpace";
         navigator.camera.getPicture(
             function (data) {
                 zipPicture(data,"zip_picture.zip");
             },
             function(e) {
                 console.log("Error getting picture: " + e);
-                document.getElementById('zip_status').innerHTML = "Error getting picture errorcode: " + e;
+                document.getElementById('zip_result').innerHTML = "Error getting picture errorcode: " + e;
             },
             { quality: 50,
                 destinationType:Camera.DestinationType.FILE_URI,
@@ -53,29 +54,104 @@
     function zipPicture(srcFile, desFile) {
         xFace.Zip.zip(srcFile, desFile,
             function () {
-                document.getElementById('zip_status').innerHTML = "Take Picture and zip picture to workspace";
+                document.getElementById('zip_result').innerHTML = "Take Picture and zip picture to workspace";
             },
             function (e) {
-                document.getElementById('zip_status').innerHTML = "zip picture to workspace errorcode: " + e;
+                document.getElementById('zip_result').innerHTML = "zip picture to workspace errorcode: " + e;
             });
     }
     //压缩指定fileurl的文件
     function zipFileUrl(srcFile, desFile) {
         xFace.Zip.zip(srcFile, desFile,
             function () {
-                document.getElementById('zip_status').innerHTML = "zip fileUrl file to workspace succes";
+                document.getElementById('zip_result').innerHTML = "zip file success";
+                deleteFile(desFile);
             },
             function (e) {
-                document.getElementById('zip_status').innerHTML = "zip fileUrl file to workspace errorcode: " + e;
+                document.getElementById('zip_result').innerHTML = "zip file errorcode: " + e;
             });
     }
 
-    //压缩file://协议文件
-    function compressFileWithFileUrl() {
+    function compressAssetsFile() {
         // 压缩当前的html文件file://.../index.html
+        document.getElementById('zip_status').innerHTML = "compressAssetsFile";
         var fileUrl = window.location.href.replace(/\?.*/, '').replace(/ /g, '%20').replace("x-wmapp0:","file://");
         zipFileUrl(fileUrl,"zip_file.zip");
     }
+
+    function compressAssetsFolder() {
+        // 压缩当前的文件夹file://.../index.html
+        document.getElementById('zip_status').innerHTML = "compressAssetsFolder";
+        var fileUrl = window.location.href.replace(/\?.*/, '').replace(/ /g, '%20').replace("x-wmapp0:","file://");
+        fileUrl = fileUrl.substring(0, (fileUrl.length-10));
+        zipFileUrl(fileUrl,"zip_file.zip");
+    }
+
+    function compressFileProtocolFile() {
+        // file协议头的文件
+        document.getElementById('zip_status').innerHTML = "compressFileProtocolFile";
+        createFile();
+        var fileUrl = "file:///mnt/sdcard/test.txt";
+        zipFileUrl(fileUrl,"zip_file.zip");
+    }
+
+    function compressRelatvieUrlFile() {
+        // 相对路径的文件
+        document.getElementById('zip_status').innerHTML = "compressRelatvieUrlFile";
+        createFile();
+        var fileUrl = "/mnt/sdcard/test.txt";
+        zipFileUrl(fileUrl,"zip_file.zip");
+    }
+
+    function compressWorkspaceFile() {
+        // 相对路径的文件
+        document.getElementById('zip_status').innerHTML = "compressWorkspaceFile";
+        var fileUrl = "SourceFile_1.html";
+        zipFileUrl(fileUrl,"zip_file.zip");
+    }
+
+    function compressFileToRoot() {
+        document.getElementById('zip_status').innerHTML = "compressFileToRoot";
+        var fileUrl = "SourceFile_1.html";
+        checkFile("zip_file.zip");
+        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onFileSystemSuccess, fail);
+        function onFileSystemSuccess(filesystem) {
+            xFace.Zip.zip(fileUrl, filesystem.root.toURL() + "zip_file.zip",
+            function () {
+                document.getElementById('zip_result').innerHTML = "zip file success";
+            },
+            function (e) {
+                document.getElementById('zip_result').innerHTML = "zip file errorcode: " + e;
+            });
+        }
+    }
+
+    function compressFileToFileProtocalRoot() {
+        document.getElementById('zip_status').innerHTML = "compressFileToRoot";
+        var fileUrl = "SourceFile_1.html";
+        checkFile("zip_file.zip");
+        xFace.Zip.zip(fileUrl, "file:///mnt/sdcard/zip_file.zip",
+        function () {
+            document.getElementById('zip_result').innerHTML = "zip file success";
+        },
+        function (e) {
+            document.getElementById('zip_result').innerHTML = "zip file errorcode: " + e;
+        });
+    }
+
+    function compressFileToRelativeRoot() {
+        document.getElementById('zip_status').innerHTML = "compressFileToRoot";
+        var fileUrl = "SourceFile_1.html";
+        checkFile("zip_file.zip");
+        xFace.Zip.zip(fileUrl, "/mnt/sdcard/zip_file.zip",
+        function () {
+            document.getElementById('zip_result').innerHTML = "zip file success";
+        },
+        function (e) {
+            document.getElementById('zip_result').innerHTML = "zip file errorcode: " + e;
+        });
+    }
+
     /**
      * Function called when page has finished loading.
      */
@@ -91,6 +167,62 @@
         },1000);
     }
 
+    function fail() {
+        document.getElementById('zip_result').innerHTML = "failed";
+    }
+
+    var deleteFile = function(fileName) {
+        window.requestFileSystem(LocalFileSystem.APPWORKSPACE, 0,
+            function(fileSystem) {
+                fileSystem.root.getFile(fileName, {create: false},
+                    // remove file system entry
+                    function(entry) {
+                        entry.remove();
+                    },
+                    // doesn't exist
+                    function() {
+                        alert("delete " + fileName + " failed!");
+                    });
+            }, fail);
+    };
+
+    var checkFile = function(fileName) {
+        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,
+            function(fileSystem) {
+                fileSystem.root.getFile(fileName, {create: false},
+                    // remove file system entry
+                    function(entry) {
+                        entry.remove();
+                        console.log("delete "+fileName+" success");
+                    });
+            });
+    }
+    var createFile = function() {
+        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0, onFileSystemSuccess, fail);
+        function onFileSystemSuccess(filesystem) {
+            filesystem.root.getFile("test.txt", {create: true, exclusive: false}, function(entry) {
+                entry.createWriter(function(writer) {
+                    writer.write("this is a test file");
+                }, function(err) {
+                    alert('Error creating test FileWriter');
+                });
+            }, function(err) {
+                alert('Error copying test to a file system');
+            });
+        }
+    };
+
+    function checkEnvironment() {
+        window.requestFileSystem(LocalFileSystem.PERSISTENT, 0,
+            function(filesystem) {
+                alert(filesystem.root.toNativeURL());
+                if(filesystem.root.toNativeURL() == "file:///mnt/sdcard/") {
+                    document.getElementById('zip_result').innerHTML = "success";
+                } else {
+                document.getElementById('zip_result').innerHTML = "failed";
+                }
+            }, fail);
+    }
 </script>
 
   </head>
@@ -99,16 +231,33 @@
 
     <h1>Zip<span id="showInfo">?</span></h1>
     <div id="descr">
-        测试说明: <br/>
-        1.使用设备上的摄像头拍照并压缩照片的工作空间，status显示为 success 通过;<br/>
-        2.压缩file:// 形式的文件到工作空间，status显示为 success 通过;<br/>
+        测试说明(测试前确保手机有sd卡): <br/>
+        1.使用设备上的摄像头拍照并压缩照片的工作空间，result显示为 success 通过;<br/>
+        2.压缩工作空间文件到工作空间，result显示为 success 通过;<br/>
+        3.压缩工作空间文件到Persistent文件系统的根目录下，result显示为 success 通过;<br/>
+        4.压缩file:///android_asset/ 形式的文件到工作空间，result显示为 success 通过(仅android)<br/>
+        5.压缩file:///android_asset/ 形式的文件夹到工作空间，result显示为 success 通过(仅android)<br/>
+        测试以下按钮时，请先点击"checkEnvironment"按钮，如果result显示为success则可测试以下内容，否则不用测试一下内容<br/>
+        6.压缩file:/// 形式的文件到工作空间，result显示为 success 通过;(仅android)<br/>
+        7.压缩相对路径/ 形式的文件到工作空间，result显示为 success 通过;(仅android)<br/>
+        8.压缩workspace的文件到file:/// 形式的路径，result显示为 success 通过;(仅android)<br/>
+        9.压缩workspace的文件到相对路径/ 形式的路径，result显示为 success 通过;(仅android)<br/>
     </div>
     <div id="info">
         <b>Status:</b> <span id="zip_status"></span><br>
+        <b>Result:</b> <span id="zip_result"></span><br>
     </div>
     <h2>Action</h2>
     <div class="btn large" onclick="getPictureAndZipToWorkSpace();">Take Picture and zip picture to workspace</div>
-    <div class="btn large" onclick="compressFileWithFileUrl();">zip fileUrl file to workspace</div>
+    <div class="btn large" onclick="compressWorkspaceFile();">zip workspace file to workspace</div>
+    <div class="btn large" onclick="compressFileToRoot();">zip workspace file to root</div>
+    <div class="btn large" data-platform="android" onclick="compressAssetsFile();">zip assets fileUrl file to workspace</div>
+    <div class="btn large" data-platform="android" onclick="compressAssetsFolder();">zip assets fileUrl folder to workspace</div>
+    <div class="btn large" data-platform="android" onclick="checkEnvironment();">checkEnvironment</div>
+    <div class="btn large" data-platform="android" onclick="compressFileProtocolFile();">zip "file:///" url file to workspace</div>
+    <div class="btn large" data-platform="android" onclick="compressRelatvieUrlFile();">zip relative url file to workspace</div>
+    <div class="btn large" data-platform="android" onclick="compressFileToFileProtocalRoot();">zip workspace file to root with file protocal</div>
+    <div class="btn large" data-platform="android" onclick="compressFileToRelativeRoot();">zip workspace file to relative root</div>
     <h2> </h2><div class="backBtn" onclick="backHome();">Back</div>
   </body>
 </html>
