@@ -46,8 +46,8 @@ describe("zip/unzip (xFace)", function () {
         expect(ZipError.FILE_NOT_EXIST).toBe(1);
         expect(ZipError.COMPRESS_FILE_ERROR).toBe(2);
         expect(ZipError.UNZIP_FILE_ERROR).toBe(3);
-        expect(ZipError.FILE_PATH_ERROR).toBe(4);
-        expect(ZipError.FILE_TYPE_ERROR).toBe(5);
+        expect(ZipError.FILE_TYPE_ERROR).toBe(4);
+        expect(ZipError.UNKNOWN_ERR).toBe(5);
     });
 
     describe("xFace.Zip.zip Method", function(){
@@ -162,7 +162,7 @@ describe("zip/unzip (xFace)", function () {
             });
         });
 
-        it("Zip.spec.7 Source file Path error! Error callback should be called with errorcode = 1(FILE_NOT_EXIST)", function() {
+        it("Zip.spec.7 Source file Path does not exist! Error callback should be called with errorcode = 1(FILE_NOT_EXIST)", function() {
             var srcFile         =  "C:///\\\aaa///\\\aaa\\";
             var desFile         =  "srcPathWrong";
             var ErrorCallBack   =  jasmine.createSpy().andCallFake(function(errorcode){
@@ -180,9 +180,9 @@ describe("zip/unzip (xFace)", function () {
             });
         });
 
-        it("Zip.spec.8 Destination file Path error! Error callback should be called with errorcode = 1(FILE_NOT_EXIST)", function() {
+        it("Zip.spec.8 Destination file Path does not exist! Error callback should be called with errorcode = 1(FILE_NOT_EXIST)", function() {
 
-            var srcFile         =  "SourceFile_1.html";//要测试本功能，必须保证srcFile存在，否则返回的是源文件不存在的错误
+            var srcFile         =  "SourceFile_1.html";
             var desFile         =  "C:///\\\aaa///\\\aaa\\";
             var ErrorCallBack   =  jasmine.createSpy().andCallFake(function(errorcode){
                 expect(errorcode).toBe(ZipError.FILE_NOT_EXIST);
@@ -199,7 +199,7 @@ describe("zip/unzip (xFace)", function () {
             });
         });
 
-        it("Zip.spec.9 Source file and Destination file pathes are all error!Error callback should be called with errorcode = 1(FILE_NOT_EXIST)",function(){
+        it("Zip.spec.9 Source file and Destination file pathes do not exist!Error callback should be called with errorcode = 1(FILE_NOT_EXIST)",function(){
             var srcFile         =  "C:///\\\bbb///\\\bbb\\";
             var desFile         =  "C:///\\\aaa///\\\aaa\\";
             var ErrorCallBack   =  jasmine.createSpy().andCallFake(function(errorcode){
@@ -281,11 +281,11 @@ describe("zip/unzip (xFace)", function () {
             });
         });
 
-        it("Zip.spec.12 Source file does not exist! Error callback should be called with errorcode = 1(FILE_PATH_ERROR)", function() {
-            var srcFile           =  "sourceFileIsNotExist.zip";
+        it("Zip.spec.12 Source file does not exist! Error callback should be called with errorcode = 1(FILE_NOT_EXIST)", function() {
+            var srcFile           =  "sourceFileNotExist.zip";
             var desFile           =  "";
             var ErrorCallBack     =  jasmine.createSpy().andCallFake(function(errorcode){
-                 expect(errorcode).toBe(ZipError.FILE_PATH_ERROR);
+                 expect(errorcode).toBe(ZipError.FILE_NOT_EXIST);
             });
             var SuccessCallBack   =  jasmine.createSpy().andCallFake(function(errorcode){ });
 
@@ -301,7 +301,7 @@ describe("zip/unzip (xFace)", function () {
         });
 
 
-        it("Zip.spec.13 Source file type error! Error callback should be called with errorcode = 5(FILE_TYPE_ERROR)", function() {
+        it("Zip.spec.13 Source file type error! Error callback should be called with errorcode = 4(FILE_TYPE_ERROR)", function() {
             var srcFile           =  "tesk.apk";
             var desFile           =  "";
             var ErrorCallBack     =  jasmine.createSpy().andCallFake(function(errorcode){
@@ -320,11 +320,11 @@ describe("zip/unzip (xFace)", function () {
 
         });
 
-        it("Zip.spec.14 Source File path error ! error callback should be called with errorcode = 4(FILE_PATH_ERROR)", function() {
+        it("Zip.spec.14 Source File path does not exist! error callback should be called with errorcode = 1(FILE_NOT_EXIST)", function() {
             var srcFile           =  "C:///\\\aaa///\\\aaa\\test.zip";
             var desFile           =  "";
             var ErrorCallBack     =  jasmine.createSpy().andCallFake(function(errorcode){
-                expect(errorcode).toBe( ZipError.FILE_PATH_ERROR);
+                expect(errorcode).toBe( ZipError.FILE_NOT_EXIST);
             });
             var SuccessCallBack =  jasmine.createSpy().andCallFake(function(){});
 
@@ -339,7 +339,7 @@ describe("zip/unzip (xFace)", function () {
 
         });
 
-        it("Zip.spec.15 Destination File path error! Error callback should be called with errorcode = 1(FILE_NOT_EXIST)", function() {
+        it("Zip.spec.15 Destination File path does not exist! Error callback should be called with errorcode = 1(FILE_NOT_EXIST)", function() {
             var srcFile           =  "destination_2.zip";
             var desFile           =  "C:///\\\aaa///\\\aaa\\";
             var ErrorCallBack     =  jasmine.createSpy().andCallFake(function(errorcode){
@@ -358,7 +358,7 @@ describe("zip/unzip (xFace)", function () {
 
         });
 
-        it("Zip.spec.16 Source File and Destination File pathes all error! Error callback should be called with errorcode = 1(FILE_NOT_EXIST)", function() {
+        it("Zip.spec.16 Source File and Destination File pathes do not exist! Error callback should be called with errorcode = 1(FILE_NOT_EXIST)", function() {
             var srcFile           =  "C:///\\\aaa///\\\aaa\\test.zip";
             var desFile           =  "C:///\\\bbb///\\\bbb\\";
             var ErrorCallBack     =  jasmine.createSpy().andCallFake(function(errorcode){
@@ -467,7 +467,7 @@ describe("zip/unzip (xFace)", function () {
             });
         });
 
-        it("Zip.spec.20 One of source files is not exist! Error callback should be called with errorcode = 1(FILE_NOT_EXIST)", function() {
+        it("Zip.spec.20 One of source files do not exist! Error callback should be called with errorcode = 1(FILE_NOT_EXIST)", function() {
             var entries         =  ["SourceFile_1.html", "sourceFileIsNotExist.html"];
             var desFile          =  "sourceFileIsNotExist.zip";
             var ErrorCallBack    =  jasmine.createSpy().andCallFake(function(errorcode){
@@ -485,7 +485,7 @@ describe("zip/unzip (xFace)", function () {
             });
         });
 
-        it("Zip.spec.21 two source files are not exist! Error callback should be called with errorcode = 1(FILE_NOT_EXIST)", function() {
+        it("Zip.spec.21 two source files do not exist! Error callback should be called with errorcode = 1(FILE_NOT_EXIST)", function() {
             var entries         =  ["sourceFileIsNotExist1.html", "sourceFileIsNotExist2.html"];
             var desFile          =  "sourceFileIsNotExist.zip";
             var ErrorCallBack    =  jasmine.createSpy().andCallFake(function(errorcode){
@@ -503,11 +503,11 @@ describe("zip/unzip (xFace)", function () {
             });
         });
 
-        it("Zip.spec.22 Path of one source file is invalid! Error callback should be called with errorcode = 4(FILE_PATH_ERROR)", function() {
+        it("Zip.spec.22 Path of one source file does not exist! Error callback should be called with errorcode = 1(FILE_NOT_EXIST)", function() {
             var entries         =  ["SourceFile_1.html", "../test"];
             var desFile         =  "srcPathWrong";
             var ErrorCallBack   =  jasmine.createSpy().andCallFake(function(errorcode){
-                expect(errorcode).toBe(ZipError.FILE_PATH_ERROR);
+                expect(errorcode).toBe(ZipError.FILE_NOT_EXIST);
             });
             var  SuccessCallBack =  jasmine.createSpy().andCallFake(function(){ });
 
@@ -521,11 +521,11 @@ describe("zip/unzip (xFace)", function () {
             });
         });
 
-        it("Zip.spec.23 Path of destination file is invalid! Error callback should be called with errorcode = 4(FILE_PATH_ERROR)", function() {
+        it("Zip.spec.23 Path of destination file does not exist! Error callback should be called with errorcode = 1(FILE_NOT_EXIST)", function() {
             var srcFile         =  ["SourceFile_1.html", "SourceFile_2.html"];
             var desFile         =  "../test";
             var ErrorCallBack   =  jasmine.createSpy().andCallFake(function(errorcode){
-                expect(errorcode).toBe(ZipError.FILE_PATH_ERROR);
+                expect(errorcode).toBe(ZipError.FILE_NOT_EXIST);
             });
             var  SuccessCallBack =  jasmine.createSpy().andCallFake(function(){ });
 

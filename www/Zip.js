@@ -78,6 +78,10 @@ var Zip = function() {};
  */
 Zip.prototype.zip = function(filePath, dstFilePath, successCallback, errorCallback,options){
     argscheck.checkArgs('ssFFO', 'xFace.Zip.zip', arguments);
+    if((filePath == "" ||  dstFilePath == "") && errorCallback){
+        errorCallback(ZipError.FILE_NOT_EXIST);
+        return;
+    }
     exec(successCallback, errorCallback, "Zip", "zip", [filePath,dstFilePath,options]);
 };
 
@@ -116,9 +120,12 @@ Zip.prototype.zip = function(filePath, dstFilePath, successCallback, errorCallba
  * @platform Android, iOS, WP8
  * @since 3.0.0
  */
- //TODO:Android支持路径为空
 Zip.prototype.unzip = function(zipFilePath, dstFolderPath, successCallback, errorCallback,options){
     argscheck.checkArgs('ssFFO', 'xFace.Zip.unzip', arguments);
+    if(zipFilePath == "" && errorCallback){
+        errorCallback(ZipError.FILE_NOT_EXIST);
+        return;
+    }
     //zip文件类型检查（zip/xpa/xspa）
     var arr = zipFilePath.split(".");
     var suffix = arr[arr.length -1];
@@ -170,6 +177,10 @@ Zip.prototype.unzip = function(zipFilePath, dstFolderPath, successCallback, erro
  */
 Zip.prototype.zipFiles = function(srcEntries, dstFilePath, successCallback, errorCallback, options){
     argscheck.checkArgs('asFFO', 'xFace.Zip.zipFiles', arguments);
+    if(dstFilePath == "" && errorCallback){
+        errorCallback(ZipError.FILE_NOT_EXIST);
+        return;
+    }
     exec(successCallback, errorCallback, "Zip", "zipFiles", [srcEntries, dstFilePath, options]);
 };
 

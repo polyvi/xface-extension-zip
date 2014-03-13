@@ -42,21 +42,19 @@ import com.polyvi.xface.util.XConstant;
 import com.polyvi.xface.util.XFileUtils;
 import com.polyvi.xface.util.XLog;
 import com.polyvi.xface.util.XPathResolver;
-import com.polyvi.xface.util.XStringUtils;
 import com.polyvi.xface.view.XAppWebView;
 
 import android.content.Context;
 import android.net.Uri;
 
 public class XZipExt extends CordovaPlugin {
-    private enum ErrorCode {
-        NONE, FILE_NOT_EXIST, // 文件不存在
-        COMPRESS_FILE_ERROR, // 压缩文件出错
-        UNZIP_FILE_ERROR, // 解压文件出错
-        FILE_PATH_ERROR, // 文件路径错误
-        FILE_TYPE_ERROR, // 文件类型错误,不支持的文件类型
-        UNKNOWN_ERR, // 未知错误
-    }
+    // 文件不存在
+    private static final int FILE_NOT_EXIST = 1;
+    // 压缩文件出错
+    private static final int COMPRESS_FILE_ERROR = 2;
+    // 解压文件出错
+    private static final int UNZIP_FILE_ERROR = 3;
+    private static final int UNKNOWN_ERR = 5;
 
     private static final String CLASS_NAME = XZipExt.class.getSimpleName();
     private static final String COMMAND_ZIP = "zip";
@@ -125,21 +123,17 @@ public class XZipExt extends CordovaPlugin {
                     XLog.e(CLASS_NAME, e.getMessage());
                     e.printStackTrace();
                     if (e instanceof IllegalArgumentException) {
-                        callbackContext.error(ErrorCode.FILE_PATH_ERROR
-                                .ordinal());
+                        callbackContext.error(FILE_NOT_EXIST);
                     } else if (e instanceof FileNotFoundException) {
-                        callbackContext.error(ErrorCode.FILE_NOT_EXIST
-                                .ordinal());
+                        callbackContext.error(FILE_NOT_EXIST);
                     } else if (e instanceof IOException) {
                         if (COMMAND_UNZIP.equals(action)) {
-                            callbackContext.error(ErrorCode.UNZIP_FILE_ERROR
-                                    .ordinal());
+                            callbackContext.error(UNZIP_FILE_ERROR);
                         } else {
-                            callbackContext.error(ErrorCode.COMPRESS_FILE_ERROR
-                                    .ordinal());
+                            callbackContext.error(COMPRESS_FILE_ERROR);
                         }
                     } else {
-                        callbackContext.error(ErrorCode.UNKNOWN_ERR.ordinal());
+                        callbackContext.error(UNKNOWN_ERR);
                     }
                 }
             }
@@ -187,9 +181,6 @@ public class XZipExt extends CordovaPlugin {
      * @return 文件（夹）的绝对路径
      */
     private Uri getFileUri(String filePath) throws IllegalArgumentException {
-        if (XStringUtils.isEmptyString(filePath)) {
-            throw new IllegalArgumentException();
-        }
         Uri fileUri = new XPathResolver(filePath, getWorkspacePath())
                 .getUri(this.webView.getResourceApi());
         if (!isFileUriValid(fileUri)) {

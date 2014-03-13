@@ -69,17 +69,6 @@ ZipError.COMPRESS_FILE_ERROR = 2;
 ZipError.UNZIP_FILE_ERROR = 3;
 
 /**
- * 文件路径错误(相应的文件(夹)不在APP的workspace下)（Android, iOS, WP8）
- * @property FILE_PATH_ERROR
- * @type Number
- * @static
- * @final
- * @platform Android, iOS, WP8
- * @since 3.0.0
- */
-ZipError.FILE_PATH_ERROR = 4;
-
-/**
  * 文件类型错误,不支持的文件类型（Android, iOS, WP8）
  * @property FILE_TYPE_ERROR
  * @type Number
@@ -88,6 +77,17 @@ ZipError.FILE_PATH_ERROR = 4;
  * @platform Android, iOS, WP8
  * @since 3.0.0
  */
-ZipError.FILE_TYPE_ERROR = 5;
+ZipError.FILE_TYPE_ERROR = 4;
+
+/**
+ * 位置错误（Android, iOS, WP8）
+ * @property UNKNOWN_ERR
+ * @type Number
+ * @static
+ * @final
+ * @platform Android, iOS, WP8
+ * @since 3.0.0
+ */
+ZipError.UNKNOWN_ERR = 5;
 
 module.exports = ZipError;
