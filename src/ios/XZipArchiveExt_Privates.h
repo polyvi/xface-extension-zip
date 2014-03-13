@@ -25,8 +25,7 @@ enum ZipError {
     FILE_NOT_EXIST = 1,
     COMPRESS_FILE_ERROR = 2,
     UNZIP_FILE_ERROR = 3,
-    FILE_PATH_ERROR = 4,
-    FILE_TYPE_ERROR = 5
+    FILE_TYPE_ERROR = 4
 };
 typedef NSUInteger ZipError;
 

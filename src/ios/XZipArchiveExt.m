@@ -61,7 +61,7 @@
         filePath = [filePlugin resolveFilePath:filePath];
         if (!filePath)
         {
-            [self sendErrorMessage:FILE_PATH_ERROR withCallbackId:command.callbackId];
+            [self sendErrorMessage:FILE_NOT_EXIST withCallbackId:command.callbackId];
             return;
         }
 
@@ -70,7 +70,7 @@
         NSString* zipFilePath = [filePlugin resolveFilePath:dstFilePath];
         if (!zipFilePath)
         {
-            [self sendErrorMessage:FILE_PATH_ERROR withCallbackId:command.callbackId];
+            [self sendErrorMessage:FILE_NOT_EXIST withCallbackId:command.callbackId];
             return;
         }
 
@@ -136,7 +136,7 @@
             filePath = [filePlugin resolveFilePath:filePath];
             if (!filePath)
             {
-                [self sendErrorMessage:FILE_PATH_ERROR withCallbackId:command.callbackId];
+                [self sendErrorMessage:FILE_NOT_EXIST withCallbackId:command.callbackId];
                 return;
             }
 
@@ -154,7 +154,7 @@
         dstZipFile = [filePlugin resolveFilePath:dstZipFile];
         if (!dstZipFile)
         {
-            [self sendErrorMessage:FILE_PATH_ERROR withCallbackId:command.callbackId];
+            [self sendErrorMessage:FILE_NOT_EXIST withCallbackId:command.callbackId];
             return;
         }
         //创建好dstZipFile的父目录
@@ -185,7 +185,7 @@
         zipFilePath = [filePlugin resolveFilePath:zipFilePath];
         if (!zipFilePath)
         {
-            [self sendErrorMessage:FILE_PATH_ERROR withCallbackId:command.callbackId];
+            [self sendErrorMessage:FILE_NOT_EXIST withCallbackId:command.callbackId];
             return;
         }
 
@@ -194,7 +194,7 @@
         dstFolderPath = [filePlugin resolveFilePath:dstFolderPath];
         if (!dstFolderPath)
         {
-            [self sendErrorMessage:FILE_PATH_ERROR withCallbackId:command.callbackId];
+            [self sendErrorMessage:FILE_NOT_EXIST withCallbackId:command.callbackId];
             return;
         }
 
