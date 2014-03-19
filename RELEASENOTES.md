@@ -41,3 +41,15 @@
  *  [iOS]Invoke file plugin resolveFilePath: method to process file path
  *  [iOS] Improve the processing logic of file path and support more path forms.
  *  Incremented plugin version on dev branch to 1.0.2-dev
+
+
+## 1.0.3 (Wed Mar 19 2014)
+
+
+ *  Remove FILE_PATH_ERROR error code and modify tests
+ *  [iOS] Get rid of FILE_PATH_ERROR, and use FILE_NOT_EXIST error code instead.
+ *  issue 4 Fix Zip: click 'zip fileUrl to workspace' button return error code 1, and add tests.Bug reason:due to refactor zip plugin. Solution: updates tests
+ *  issue 1 automatic->ZIP: 6 failing. Bug reason:1.zip extension has changed some error code codition;2.Filesystem has be changed.Solution:1.modify some error code;2.Modify js interface calls
+ *  [Android]Fix assets file whose path is end with '/' can't be compressed successfully
+ *  [Android]Refactor xface-extension-zip native codes and it can support protocol 'file:///android_asset/'
+ *  Incremented plugin version on dev branch to 1.0.3-dev
